@@ -3,12 +3,12 @@ module RubyJmeter
 
     def parse_http_request(params)
       parse_url(params) unless params[:url].empty?
-      
+
       if params[:raw_path]
         params[:path] = params[:url]
       else
         params[:fill_in] ||= {}
-        params[:params] && params[:params].split('&').each do |param| 
+        params[:params] && params[:params].split('&').each do |param|
           name,value = param.split('=')
           params[:fill_in][name] = value
         end
@@ -21,10 +21,10 @@ module RubyJmeter
     def parse_url(params)
       if params[:url] =~ /https?:\/\/\$/ || params[:url][0] == '$'
         params[:path] = params[:url] # special case for named expressions
-      else 
+      else
         uri = parse_uri(params[:url])
-        params[:port]     ||= uri.port unless URI.parse(URI::encode(params[:url])).scheme.nil?
-        params[:protocol] ||= uri.scheme unless URI.parse(URI::encode(params[:url])).scheme.nil?
+        params[:port]     ||= uri.port unless URI.parse(URI::DEFAULT_PARSER.escape(url)(params[:url])).scheme.nil?
+        params[:protocol] ||= uri.scheme unless URI.parse(URI::DEFAULT_PARSER.escape(url)(params[:url])).scheme.nil?
         params[:domain]   ||= uri.host
         params[:path]     ||= uri.path && URI::decode(uri.path)
         params[:params]   ||= uri.query && URI::decode(uri.query)
@@ -33,9 +33,9 @@ module RubyJmeter
     end
 
     def parse_uri(uri)
-      URI.parse(URI::encode(uri)).scheme.nil? ? 
-        URI.parse(URI::encode("http://#{uri}")) : 
-        URI.parse(URI::encode(uri))   
+      URI.parse(URI::DEFAULT_PARSER.escape(url)(uri)).scheme.nil? ?
+        URI.parse(URI::DEFAULT_PARSER.escape(url)("http://#{uri}")) :
+        URI.parse(URI::DEFAULT_PARSER.escape(url)(uri))
     end
 
     def fill_in(params)
@@ -68,7 +68,7 @@ module RubyJmeter
 
       params[:update_at_xpath] << {
         :xpath => '//collectionProp',
-        :value => Nokogiri::XML(<<-EOF.strip_heredoc).children  
+        :value => Nokogiri::XML(<<-EOF.strip_heredoc).children
           <elementProp name="" elementType="HTTPArgument">
             <boolProp name="HTTPArgument.always_encode">false</boolProp>
             <stringProp name="Argument.value">#{params[:raw_body]}</stringProp>
@@ -101,6 +101,6 @@ module RubyJmeter
         2
       end
     end
-    
+
   end
 end
