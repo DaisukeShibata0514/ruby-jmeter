@@ -23,8 +23,8 @@ module RubyJmeter
         params[:path] = params[:url] # special case for named expressions
       else
         uri = parse_uri(params[:url])
-        params[:port]     ||= uri.port unless URI.parse(URI::DEFAULT_PARSER.escape(url)(params[:url])).scheme.nil?
-        params[:protocol] ||= uri.scheme unless URI.parse(URI::DEFAULT_PARSER.escape(url)(params[:url])).scheme.nil?
+        params[:port]     ||= uri.port unless URI.parse(URI::DEFAULT_PARSER.escape(params[:url])).scheme.nil?
+        params[:protocol] ||= uri.scheme unless URI.parse(URI::DEFAULT_PARSER.escape(params[:url])).scheme.nil?
         params[:domain]   ||= uri.host
         params[:path]     ||= uri.path && URI::decode(uri.path)
         params[:params]   ||= uri.query && URI::decode(uri.query)
@@ -33,9 +33,9 @@ module RubyJmeter
     end
 
     def parse_uri(uri)
-      URI.parse(URI::DEFAULT_PARSER.escape(url)(uri)).scheme.nil? ?
-        URI.parse(URI::DEFAULT_PARSER.escape(url)("http://#{uri}")) :
-        URI.parse(URI::DEFAULT_PARSER.escape(url)(uri))
+      URI.parse(URI::DEFAULT_PARSER.escape(uri)).scheme.nil? ?
+        URI.parse(URI::DEFAULT_PARSER.escape("http://#{uri}")) :
+        URI.parse(URI::DEFAULT_PARSER.escape(uri))
     end
 
     def fill_in(params)
